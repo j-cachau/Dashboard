@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reportes – Prospectos & Llamados</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="#/">
+      <img id="logo" src="assets/logo.png" alt="Logo" />
+      <h1>Reportes</h1>
+    </a>
+
+    <nav class="tabs">
+      <a href="#/" data-route="/">Dashboard</a>
+      <a href="#/prospectos" data-route="prospectos">Prospectos</a>
+      <a href="#/llamados" data-route="llamados">Llamados</a>
+    </nav>
+
+    <span class="pill" id="dataStatus">Cargando…</span>
+  </header>
+
+  <div class="wrap">
+
+    <div class="card notice" id="configNotice" style="display:none">
+      <strong>Config faltante:</strong> pegá las URLs CSV en <code>src/config.js</code>.
+    </div>
+
+    <!-- Rango de fechas (global a todas las vistas) -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="toolbar" style="align-items:center; gap:12px">
+        <h3 style="margin-right:auto">Rango de fechas</h3>
+        <select id="presetRange">
+          <option value="30d" selected>Últimos 30 días</option>
+          <option value="90d">Últimos 90 días</option>
+          <option value="ytd">YTD (año en curso)</option>
+          <option value="todo">Todo</option>
+          <option value="custom">Personalizado…</option>
+        </select>
+        <label>Desde <input id="fromDate" type="date" disabled></label>
+        <label>Hasta <input id="toDate" type="date" disabled></label>
+        <button id="applyRange" class="pill" style="cursor:pointer">Aplicar</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view">
+      <!-- KPIs -->
+      <section class="grid cols-4" style="margin-bottom:16px">
+        <div class="card kpi"><div class="label">Prospectos totales</div><div class="value" id="kpiPros">–</div><div class="sub" id="kpiProsSub"> </div></div>
+        <div class="card kpi"><div class="label">Llamados</div><div class="value" id="kpiLlam30">–</div><div class="sub" id="kpiLlam30Sub"> </div></div>
+        <div class="card kpi"><div class="label">Nuevos prospectos</div><div class="value" id="kpiPros30">–</div><div class="sub">vs total</div></div>
+        <div class="card kpi"><div class="label">Última actualización</div><div class="value" id="kpiUpdated">–</div><div class="sub" id="kpiUpdatedSub"> </div></div>
+      </section>
+
+      <!-- Charts -->
+      <section class="grid cols-2" style="margin-bottom:16px">
+        <div class="card">
+          <h3>Top Etiquetas</h3>
+          <canvas id="chartEstados"></canvas>
+        </div>
+        <div class="card">
+          <h3>Top Compañías</h3>
+          <canvas id="chartCompanias"></canvas>
+        </div>
+        <div class="card">
+          <h3>Llamados por Operador (últimos 30 días)</h3>
+          <canvas id="chartOperador"></canvas>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <h3 style="margin-right:auto">Tiempo de llamadas</h3>
+            <select id="durMode">
+              <option value="avg">Promedio x llamada</option>
+              <option value="sum">Suma total</option>
+            </select>
+          </div>
+          <canvas id="chartDuracion"></canvas>
+        </div>
+      </section>
+    </section>
+
+    <!-- PROSPECTOS -->
+    <section id="view-prospectos" class="view hidden">
+      <div class="card">
+        <div class="toolbar">
+          <h3 style="margin-right:auto">Listado de prospectos</h3>
+          <input id="searchProsFull" type="text" placeholder="Buscar… (Compañía, Contacto, Estado, Origen)" />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>FechaAlta</th><th>Compañía</th><th>Contacto</th><th>Estado</th><th>Origen</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyProsFull"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- LLAMADOS -->
+    <section id="view-llamados" class="view hidden">
+      <div class="card">
+        <div class="toolbar">
+          <h3 style="margin-right:auto">Listado de llamados</h3>
+          <input id="searchLlamFull" type="text" placeholder="Buscar… (Operador, Resultado, ProspectoID)" />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th><th>ProspectoID</th><th>Operador</th><th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyLlamFull"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="footer">Hecho con ❤️ y <a class="link" href="https://www.chartjs.org/" target="_blank" rel="noreferrer">Chart.js</a> · Datos desde Google publicados como CSV.</div>
+  </div>
+
+  <script src="src/config.js"></script>
+  <script src="src/state.js"></script>
+  <script src="src/utils.js"></script>
+  <script src="src/filters.js"></script>
+  <script src="src/kpis.js"></script>
+  <script src="src/charts.js"></script>
+  <script src="src/tables.js"></script>
+  <script src="src/data.js"></script>
+  <script src="src/router.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
