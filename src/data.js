@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 // src/data.js
 function ensureConfig(){
   let ok = true;
