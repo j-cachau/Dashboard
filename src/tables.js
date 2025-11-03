@@ -1,6 +1,7 @@
 // tables.js
 import { CONFIG } from './config.js';
-import { PROS, LLAM, getFiltered } from './state.js';
+import { PROS, LLAM, RAW_PROS, RAW_LLAM, RANGE } from './state.js';
+import { setRaw, setFiltered, setRange } from './state.js';
 import { parseDateFlex } from './utils.js';
 import { toCSV, downloadFile } from './utils.js';
 
