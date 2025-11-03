@@ -51,7 +51,7 @@ async function init(){
 }
 
 // Redibuja todo según RANGE (sin tocar RAW_*)
-function rerenderAll(){
+export function rerenderAll(){
   const { pros, llam } = getFiltered();
   PROS = pros; LLAM = llam;
 
