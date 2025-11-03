@@ -2,6 +2,8 @@
 import { CONFIG } from './config.js';
 import { PROS, LLAM } from './state.js';
 import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurationToSeconds } from './charts_utils.js';
+import { getFiltered } from './filters.js';
+
 
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
 
