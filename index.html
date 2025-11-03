@@ -88,40 +88,51 @@
     <!-- PROSPECTOS -->
     <section id="view-prospectos" class="view hidden">
       <div class="card">
-        <div class="toolbar">
+        <div class="toolbar" id="prosToolbar">
           <h3 style="margin-right:auto">Listado de prospectos</h3>
-          <input id="searchProsFull" type="text" placeholder="Buscar… (Compañía, Contacto, Estado, Origen)" />
+          <input id="searchPros" type="text"
+                 placeholder="Buscar… (Compañía, Contacto, Estado, Origen)" />
         </div>
+    
         <table>
           <thead>
             <tr>
               <th>FechaAlta</th><th>Compañía</th><th>Contacto</th><th>Estado</th><th>Origen</th>
             </tr>
           </thead>
-          <tbody id="tbodyProsFull"></tbody>
+          <tbody id="tbodyPros"></tbody>
         </table>
+    
+        <!-- Aquí se dibuja la paginación y el botón Exportar -->
+        <div id="prosFooter" style="margin-top:8px"></div>
       </div>
     </section>
-
+    
     <!-- LLAMADOS -->
     <section id="view-llamados" class="view hidden">
       <div class="card">
-        <div class="toolbar">
+        <div class="toolbar" id="llamToolbar">
           <h3 style="margin-right:auto">Listado de llamados</h3>
-          <input id="searchLlamFull" type="text" placeholder="Buscar… (Operador, Resultado, ProspectoID)" />
+          <input id="searchLlam" type="text"
+                 placeholder="Buscar… (Operador, Resultado, ProspectoID)" />
         </div>
+    
         <table>
           <thead>
             <tr>
               <th>Fecha</th><th>ProspectoID</th><th>Operador</th><th>Resultado</th>
             </tr>
           </thead>
-          <tbody id="tbodyLlamFull"></tbody>
+          <tbody id="tbodyLlam"></tbody>
         </table>
+    
+        <!-- Aquí se dibuja la paginación y el botón Exportar -->
+        <div id="llamFooter" style="margin-top:8px"></div>
       </div>
     </section>
 
-    <div class="footer">Hecho con ❤️ y <a class="link" href="https://www.chartjs.org/" target="_blank" rel="noreferrer">Chart.js</a> · Datos desde Google publicados como CSV.</div>
+
+    <div class="footer">Datos desde Google publicados como CSV.</div>
   </div>
 
   <script src="src/config.js"></script>
