@@ -103,3 +103,27 @@ export const valueLabels = {
     ctx.restore();
   }
 };
+
+// === Descarga de archivos (CSV, etc.) ===
+export function downloadFile(filename, content, mime = 'text/csv;charset=utf-8') {
+  const blob = new Blob([content], { type: mime });
+
+  // Fallback para IE/Edge heredados
+  if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveOrOpenBlob(blob, filename);
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  // limpiar
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
