@@ -1,4 +1,6 @@
 import { CONFIG } from './config.js';
+import { PROS, LLAM, RAW_PROS, RAW_LLAM, RANGE } from './state.js';
+
 // src/charts.js
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
 
