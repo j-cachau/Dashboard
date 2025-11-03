@@ -1,3 +1,4 @@
+import { CONFIG } from './config.js';
 // src/charts.js
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
 
