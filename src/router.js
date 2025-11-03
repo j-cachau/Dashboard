@@ -40,4 +40,29 @@ function navigate(){
   }
 }
 
+// Ejemplo de handlers en router:
+import { renderProspectsTable, wireProsSearch, renderCallsTable, wireLlamSearch } from './tables.js';
+import { rerenderAll } from './main.js';
+
+function showDashboard(){ /* ... como ya lo tenías ... */ }
+
+function showProspects(){
+  // asume que ya se cargaron datos y se aplicó el filtro global
+  renderProspectsTable();
+  wireProsSearch();
+}
+
+function showCalls(){
+  renderCallsTable();
+  wireLlamSearch();
+}
+
+export function route() {
+  const hash = (location.hash || '#/').toLowerCase();
+  if (hash.startsWith('#/prospectos')) return showProspects();
+  if (hash.startsWith('#/llamados'))   return showCalls();
+  return showDashboard();
+}
+
+
 window.addEventListener('hashchange', navigate);
