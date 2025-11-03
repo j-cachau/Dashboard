@@ -97,3 +97,6 @@ export function isInbound(rawType) {
   return v === 'entrante' || v === 'inbound';
 }
 
+export function weekdayEs(d) {
+  return ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()];
+}
