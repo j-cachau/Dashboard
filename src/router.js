@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 // src/router.js
 function setActiveTab(route){
   document.querySelectorAll('nav.tabs a').forEach(a=>{
