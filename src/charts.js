@@ -1,0 +1,124 @@
+// src/charts.js
+import { CONFIG } from './config.js';
+import { PROS, LLAM } from './state.js';
+import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurationToSeconds } from './charts_utils.js';
+
+let chartEstados, chartOperador, chartCompanias, chartDuracion;
+
+export function renderCharts(){
+  const c  = CONFIG.COLS_PROS, cl = CONFIG.COLS_LLAM;
+
+  const estados  = groupCount(PROS, p => p[c.estado] || 'Sin estado');
+  const entriesE = Object.entries(estados).sort((a,b)=> b[1]-a[1]).slice(0,10);
+  const labelsE  = entriesE.map(([k]) => k);
+  const dataE    = entriesE.map(([,v]) => v);
+
+  const llamOK = LLAM.filter(isSuccessCall);
+  const porOper = groupCount(llamOK, l => l[cl.operador] || 'Sin operador');
+  const entriesO= Object.entries(porOper).sort((a,b)=> b[1]-a[1]);
+  const labelsO = entriesO.map(([k]) => k);
+  const dataO   = entriesO.map(([,v]) => v);
+
+  const companias = groupCount(PROS, p => p[c.compania] || 'Sin compañía');
+  const entriesC  = Object.entries(companias).sort((a,b)=> b[1]-a[1]).slice(0,10);
+  const labelsC   = entriesC.map(([k]) => k);
+  const dataC     = entriesC.map(([,v]) => v);
+
+  const H = (n)=> !n?160: (n<=6?220: Math.min(320, 22*n+80));
+
+  const elE = document.getElementById('chartEstados');
+  const elO = document.getElementById('chartOperador');
+  const elC = document.getElementById('chartCompanias');
+  if(!elE || !elO || !elC) return;
+
+  elE.style.height = H(labelsE.length)+'px';
+  elO.style.height = H(labelsO.length)+'px';
+  elC.style.height = H(labelsC.length)+'px';
+
+  const ctxE = elE.getContext('2d');
+  const ctxO = elO.getContext('2d');
+  const ctxC = elC.getContext('2d');
+
+  if (chartEstados) chartEstados.destroy();
+  if (chartOperador) chartOperador.destroy();
+  if (chartCompanias) chartCompanias.destroy();
+
+  const commonOpts = (labels)=>({
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    layout: { padding: { right: 28 } },
+    plugins: { legend: { display:false }, tooltip: { mode:'nearest', intersect:false } },
+    scales: {
+      x: { beginAtZero:true, ticks:{ precision:0 }, grid:{ color:'rgba(255,255,255,.06)' } },
+      y: { ticks:{ autoSkip:false, font:{ size:12 }, callback:(v,i)=> shortenLabel(labels[i], 36) }, grid:{ display:false } }
+    }
+  });
+
+  chartEstados = new Chart(ctxE, {
+    type:'bar',
+    data:{ labels:labelsE, datasets:[{ label:'Prospectos', data:dataE, barThickness:18, maxBarThickness:22, borderRadius:6, borderSkipped:false, categoryPercentage:0.6, barPercentage:0.9 }]},
+    options: commonOpts(labelsE),
+    plugins: [valueLabels]
+  });
+
+  chartOperador = new Chart(ctxO, {
+    type:'bar',
+    data:{ labels:labelsO, datasets:[{ label:'Llamados (30d)', data:dataO, barThickness:18, maxBarThickness:22, borderRadius:6, borderSkipped:false, categoryPercentage:0.6, barPercentage:0.9 }]},
+    options: commonOpts(labelsO),
+    plugins: [valueLabels]
+  });
+
+  chartCompanias = new Chart(ctxC, {
+    type:'bar',
+    data:{ labels:labelsC, datasets:[{ label:'Prospectos', data:dataC, barThickness:18, maxBarThickness:22, borderRadius:6, borderSkipped:false, categoryPercentage:0.6, barPercentage:0.9 }]},
+    options: commonOpts(labelsC),
+    plugins: [valueLabels]
+  });
+}
+
+export function renderDuracionChart(mode='avg'){
+  const cl = CONFIG.COLS_LLAM;
+  const agg = new Map();
+  for (const r of LLAM.filter(isSuccessCall)){
+    const oper = r[cl.operador] || 'Sin operador';
+    const sec  = parseDurationToSeconds(r[cl.Duracion]) || parseDurationToSeconds(r['Duración de la llamada']) || parseDurationToSeconds(r['Duración']);
+    if (!sec) continue;
+    let a = agg.get(oper); if(!a) agg.set(oper, a={sumSec:0,count:0});
+    a.sumSec += sec; a.count += 1;
+  }
+  const entries = Array.from(agg.entries()).map(([k,v])=> [k, mode==='avg' ? v.sumSec/Math.max(1,v.count) : v.sumSec]).sort((a,b)=> b[1]-a[1]);
+  const labels = entries.map(e=>e[0]); const data = entries.map(e=>e[1]);
+
+  const el = document.getElementById('chartDuracion'); if(!el) return;
+  const H = (n)=> !n?160: (n<=6?220: Math.min(320, 22*n+80)); el.style.height=H(labels.length)+'px';
+  const ctx = el.getContext('2d'); if(chartDuracion) chartDuracion.destroy();
+
+  chartDuracion = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ label: mode==='avg' ? 'Promedio por llamada' : 'Suma total', data, barThickness:18, maxBarThickness:22, borderRadius:6, borderSkipped:false, categoryPercentage:0.6, barPercentage:0.9, valueLabelFormatter:(v)=> formatSecondsBrief(v) }]},
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:false, layout:{ padding:{ right:28 } },
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:(ctx)=> `${ctx.dataset.label}: ${formatSecondsBrief(ctx.parsed.x)}` }}},
+      scales:{
+        x:{ beginAtZero:true, grid:{ color:'rgba(255,255,255,.06)' }, ticks:{ callback:(v)=> formatSecondsBrief(v), precision:0 } },
+        y:{ ticks:{ autoSkip:false, font:{ size:12 }, callback:(v,i)=> shortenLabel(labels[i],36) }, grid:{ display:false } }
+      }
+    },
+    plugins:[valueLabels]
+  });
+}
+
+// plugin & helpers for charts moved to charts_utils.js
+export const valueLabels = {
+  id:'valueLabels',
+  afterDatasetsDraw(chart){
+    const {ctx} = chart;
+    const ds = chart.data.datasets[0];
+    const fmtVal = ds.valueLabelFormatter || ((v)=> v.toLocaleString('es-AR'));
+    ctx.save(); ctx.fillStyle = getComputedStyle(document.body).color; ctx.font = '12px system-ui, Segoe UI, Roboto, Arial';
+    chart.getDatasetMeta(0).data.forEach((bar,i)=>{ const raw = ds.data[i]; if(raw==null) return; ctx.fillText(fmtVal(raw), bar.x+6, bar.y+4); });
+    ctx.restore();
+  }
+};
