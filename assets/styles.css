@@ -35,5 +35,20 @@ a.brand{display:flex;align-items:center;gap:10px;color:var(--fg);text-decoration
 .tabs a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px;border:1px solid transparent}
 .tabs a.active{color:var(--fg);border-color:var(--line);background:#0e1524}
 
+/* Paginación y botones */
+.toolbar .btn {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: #0e1524;
+  color: var(--fg);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.toolbar .btn:disabled { opacity: .5; cursor: not-allowed; }
+.pager { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pager .info { color: var(--muted); font-size: 12px; }
+select.page-size { background:#0e1524; border:1px solid var(--line); color:var(--fg); border-radius:10px; padding:6px 8px; }
+
 /* Views */
 .view.hidden{display:none}
