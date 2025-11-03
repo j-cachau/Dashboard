@@ -95,7 +95,28 @@
       </section>
     </section>
 
+    <!-- Prospectos por día -->
+    <section class="grid cols-2" style="margin-top:16px">
+      <div class="card">
+        <h3>Top días por prospectos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Día</th>
+              <th>Semana</th>
+              <th style="text-align:right">Prospectos</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyTopDiasPros"></tbody>
+        </table>
+      </div>
     
+      <div class="card">
+        <h3>Prospectos por día</h3>
+        <canvas id="chartProsDia" style="height:320px"></canvas>
+      </div>
+    </section>
+
 
     <!-- PROSPECTOS -->
     <section id="view-prospectos" class="view hidden">
