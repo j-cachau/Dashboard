@@ -25,3 +25,18 @@ export const CONFIG = {
     Duracion: 'Duración de la llamada'
   }
 };
+
+// 🔹 NUEVO: dejala global para que main.js pueda llamarla sin imports
+window.ensureConfig = function ensureConfig(){
+  let ok = true;
+  try {
+    if(!window.CONFIG?.CSV_PROSPECTOS_URL) ok = false;
+    if(!window.CONFIG?.CSV_LLAMADOS_URL)  ok = false;
+  } catch { ok = false; }
+
+  const n = document.getElementById('configNotice');
+  if (n) n.style.display = ok ? 'none' : 'block';
+
+  const logo = document.getElementById('logo');
+  if (logo) logo.src = window.CONFIG?.LOGO_URL || 'assets/logo.png';
+};
