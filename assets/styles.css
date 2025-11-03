@@ -41,6 +41,25 @@ h1{font-size:18px;margin:0}
   max-height: 100% !important; /* 🔒 */
 }
 
+/* Wrapper de alto fijo para charts */
+.chart-h280 { height: 280px; }
+.chart-h320 { height: 320px; }
+.chart-h360 { height: 360px; }
+
+/* MUY IMPORTANTE: el canvas debe estirar al 100% del alto de su wrapper */
+.card .chart-h280 canvas,
+.card .chart-h320 canvas,
+.card .chart-h360 canvas,
+.card canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;   /* rompe el height:auto global si lo hubiera */
+}
+
+/* Si en algún momento pusimos un reset como este, anularlo o dejarlo así: */
+/* canvas { height: auto; }   <-- Evitarlo para charts */
+
+
 /* Opcional: deja los cards sin desbordes visibles */
 .card{ overflow: hidden; }
 .kpi{display:flex;flex-direction:column;gap:6px}
