@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 // src/kpis.js
 function computeLastDataDate(){
   const c  = CONFIG.COLS_PROS;
