@@ -1,4 +1,6 @@
 import { CONFIG } from './config.js';
+import { rerenderAll } from './main.js';
+
 
 // src/router.js
 function setActiveTab(route){
