@@ -21,6 +21,7 @@ export const CONFIG = {
     operador: 'Empleado',
     resultado: 'Estatus',
     notas: 'Notas',
-    Duracion: 'Duración de la llamada'
+    Duracion: 'Duración de la llamada',
+    tipo: 'Tipo de la llamada'
   }
 };
