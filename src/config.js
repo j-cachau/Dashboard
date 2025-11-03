@@ -1,8 +1,8 @@
 // src/config.js
 export const CONFIG = {
   LOGO_URL: 'assets/logo.png',
-  CSV_PROSPECTOS_URL: 'REEMPLAZA_CON_URL_CSV_PROS',   // <-- poné tus URLs
-  CSV_LLAMADOS_URL  : 'REEMPLAZA_CON_URL_CSV_LLAM',
+  CSV_PROSPECTOS_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR11IHFM7jVM_QT1iTEzGEAyhRIBWhI_X6s1XWxW7ZILxMOK09jKQ0356inkeevTTp-L4ukSoFn2wjK/pub?gid=375626003&single=true&output=csv',   // <-- poné tus URLs
+  CSV_LLAMADOS_URL  : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR11IHFM7jVM_QT1iTEzGEAyhRIBWhI_X6s1XWxW7ZILxMOK09jKQ0356inkeevTTp-L4ukSoFn2wjK/pub?gid=1112671308&single=true&output=csv',
 
   COLS_PROS: {
     id: 'ID',
