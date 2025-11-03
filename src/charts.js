@@ -161,7 +161,6 @@ export function renderLlamadosTrend(){
   const cl = CONFIG.COLS_LLAM;
 
   if (!llam || !llam.length){
-    // si no hay datos, destruye chart previo y sale
     if (chartLlamTrend) { chartLlamTrend.destroy(); chartLlamTrend = null; }
     return;
   }
@@ -169,23 +168,29 @@ export function renderLlamadosTrend(){
   // Agrupa por día yyyy-mm-dd
   const succ = {};   // éxitos por día
   const omit = {};   // omitidos por día
-
   let minD = null, maxD = null;
 
   for (const r of llam){
+    // 1) Solo llamadas ENTRANTES
+    if (!isInbound(r[cl.tipo])) continue;
+
+    // 2) Clasificar el resultado (solo success/omitted)
+    const kind = classifyCall(r[cl.resultado]);
+    if (kind !== 'success' && kind !== 'omitted') continue;
+
+    // 3) Fecha (tu hoja es dmy)
     const d = parseDateFlex(r[cl.fecha], 'dmy');
     if (!d || isNaN(d)) continue;
     d.setHours(0,0,0,0);
+
     if (!minD || d < minD) minD = new Date(d);
     if (!maxD || d > maxD) maxD = new Date(d);
 
     const key = d.toISOString().slice(0,10);
-    if (isSuccessCall(r)) {
-      succ[key] = (succ[key]||0) + 1;
-    } else if (isOmittedCall(r)) {
-      omit[key] = (omit[key]||0) + 1;
-    } else {
-      // otros estados: no se cuentan (solo pediste éxitos vs omitidos)
+    if (kind === 'success') {
+      succ[key] = (succ[key] || 0) + 1;
+    } else { // omitted
+      omit[key] = (omit[key] || 0) + 1;
     }
   }
 
@@ -194,18 +199,23 @@ export function renderLlamadosTrend(){
     return;
   }
 
-  // Rellenar días sin registros con 0 para tener líneas continuas
+  // Rellenar días sin registros con 0 para líneas continuas
   const succFull = fillDaysRange(succ, minD, maxD);
   const omitFull = fillDaysRange(omit, minD, maxD);
 
-  const keys = Object.keys(succFull).sort();  // yyyy-mm-dd
+  // Unificar llaves (por si un día hay solo una serie)
+  const keys = Array.from(new Set([
+    ...Object.keys(succFull),
+    ...Object.keys(omitFull)
+  ])).sort();
+
   const labels = keys.map(k => {
     const [y,m,d] = k.split('-').map(Number);
     return new Date(y, m-1, d).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit' });
   });
 
-  const dataSucc = keys.map(k => succFull[k]);
-  const dataOmit = keys.map(k => omitFull[k]);
+  const dataSucc = keys.map(k => succFull[k] || 0);
+  const dataOmit = keys.map(k => omitFull[k] || 0);
 
   // Render — línea verde (éxitos) y roja (omitidos)
   const el = document.getElementById('chartLlamTrend');
@@ -222,22 +232,22 @@ export function renderLlamadosTrend(){
         {
           label: 'Éxitos',
           data: dataSucc,
-          borderColor: '#5ad77c',
-          backgroundColor: 'rgba(90,215,124,0.15)',
-          fill: true,
-          tension: 0.3,
+          borderColor: '#34d399',
+          backgroundColor: 'rgba(52,211,153,0.15)',
+          fill: false,
+          tension: 0.25,
           borderWidth: 2,
-          pointRadius: 0
+          pointRadius: 2
         },
         {
           label: 'Omitidos',
           data: dataOmit,
-          borderColor: '#ff6b6b',
-          backgroundColor: 'rgba(255,107,107,0.15)',
-          fill: true,
-          tension: 0.3,
+          borderColor: '#f87171',
+          backgroundColor: 'rgba(248,113,113,0.15)',
+          fill: false,
+          tension: 0.25,
           borderWidth: 2,
-          pointRadius: 0
+          pointRadius: 2
         }
       ]
     },
@@ -265,4 +275,5 @@ export function renderLlamadosTrend(){
     }
   });
 }
+
 
