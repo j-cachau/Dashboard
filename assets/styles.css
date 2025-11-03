@@ -18,7 +18,14 @@ h1{font-size:18px;margin:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
 /* Altura fija para charts: evita que el layout se mueva */
 :root { --chart-h: 300px; }  /* podés subir a 320 si querés */
+/* Ocupa 2 columnas en grids de 2 cols o más */
+.span-2 { grid-column: span 2; }
 
+/* Un poco más alto para el line chart */
+.chart-box.tall{
+  height: 360px;
+  max-height: 360px;
+}
 .chart-box{
   height: var(--chart-h);
   max-height: var(--chart-h);
