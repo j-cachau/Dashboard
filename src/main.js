@@ -4,7 +4,7 @@ import { RANGE, setFiltered } from './state.js';
 import { ensureConfig, loadData, updateLastModifiedKPI } from './data.js';
 import { getFiltered } from './filters.js';
 import { renderKPIs } from './kpis.js';
-import { renderCharts, renderDuracionChart,renderLlamadosTrend } from './charts.js';
+import { renderCharts, renderDuracionChart,renderLlamadosTrend,renderProspectosPorDia } from './charts.js';
 import { renderTables } from './tables.js';
 import { $ } from './utils.js';
 import { initRouter } from './router.js';
@@ -20,6 +20,7 @@ function rerenderAll(){
   renderTables();
   renderLlamadosTrend();
   renderDuracionChart($('#durMode')?.value || 'avg');
+  renderProspectosPorDia();
 }
 
 async function init(){
