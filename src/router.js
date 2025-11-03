@@ -46,7 +46,7 @@ function navigate(){
 
 // Ejemplo de handlers en router:
 import { renderProspectsTable, wireProsSearch, renderCallsTable, wireLlamSearch } from './tables.js';
-import { rerenderAll } from './main.js';
+
 
 function showDashboard(){ /* ... como ya lo tenías ... */ }
 
