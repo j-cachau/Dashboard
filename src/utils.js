@@ -62,3 +62,26 @@ function isSuccessCall(row){
   const v = raw.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().trim();
   return v === 'la llamada tuvo exito' || (v.startsWith('la llamada tuvo') && v.includes('exito'));
 }
+
+// --- CSV helpers ---
+export function toCSV(rows, headersOrder) {
+  if (!rows?.length) return '';
+  const head = headersOrder || Object.keys(rows[0]);
+  const escape = (v) => {
+    const s = (v ?? '').toString();
+    if (/[",\n;]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  };
+  const lines = [];
+  lines.push(head.map(escape).join(';'));
+  for (const r of rows) lines.push(head.map(h => escape(r[h])).join(';'));
+  return lines.join('\n');
+}
+export function downloadFile(filename, content, mime='text/csv;charset=utf-8') {
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+}
+
