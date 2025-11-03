@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { PROS, LLAM } from './state.js';
 import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurationToSeconds } from './charts_utils.js';
 import { getFiltered } from './filters.js';
-import { parseDateFlex, classifyCall, isInbound } from './utils.js';
+import { parseDateFlex, classifyCall, isInbound,weekdayEs } from './utils.js';
 
 
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
@@ -344,4 +344,126 @@ export function renderLlamadosTrend(){
   });
 }
 
+let chartProsDia = null;
 
+/**
+ * Prospectos por día
+ * - Usa PROS ya filtrado por el rango global (getFiltered()).
+ * - Agrupa por fecha (yyyy-mm-dd).
+ */
+export function renderProspectosPorDia() {
+  const { pros } = getFiltered();
+  const c = CONFIG.COLS_PROS;
+
+  // Agrupar por día
+  const buckets = new Map(); // key -> {date: Date, count}
+  let minD=null, maxD=null;
+
+  for (const r of (pros || [])) {
+    const d = parseDateFlex(r[c.fechaAlta], 'mdy'); // tu “Creado” es mm/dd/yyyy
+    if (!d || isNaN(d)) continue;
+    d.setHours(0,0,0,0);
+    const key = d.toISOString().slice(0,10);
+    const obj = buckets.get(key) || { date: new Date(d), count: 0 };
+    obj.count += 1;
+    buckets.set(key, obj);
+
+    if (!minD || d < minD) minD = new Date(d);
+    if (!maxD || d > maxD) maxD = new Date(d);
+  }
+
+  // ----- Tabla Top días
+  const top = Array.from(buckets.values())
+    .sort((a,b)=> b.count - a.count)
+    .slice(0, 10); // top 10
+
+  const tb = document.getElementById('tbodyTopDiasPros');
+  if (tb) {
+    tb.innerHTML = top.map(({date,count})=>{
+      const f = date.toISOString().slice(0,10);
+      const w = weekdayEs(date);
+      return `<tr>
+        <td>${f}</td>
+        <td>${w}</td>
+        <td style="text-align:right">${count.toLocaleString('es-AR')}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="3" style="color:var(--muted)">Sin datos</td></tr>`;
+  }
+
+  // ----- Línea por día
+  const canvas = document.getElementById('chartProsDia');
+  if (!canvas) return;
+
+  if (!minD || !maxD) {
+    if (chartProsDia) { chartProsDia.destroy(); chartProsDia = null; }
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    return;
+  }
+
+  // Rango completo de días con 0s
+  const labels = [];
+  const series = [];
+  for (let d = new Date(minD); d <= maxD; d.setDate(d.getDate()+1)) {
+    const key = d.toISOString().slice(0,10);
+    labels.push(key);
+    series.push( (buckets.get(key)?.count) || 0 );
+  }
+
+  const ctx = canvas.getContext('2d');
+  if (chartProsDia) chartProsDia.destroy();
+
+  chartProsDia = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Prospectos',
+        data: series,
+        borderColor: '#4da3ff',
+        backgroundColor: 'rgba(77,163,255,.15)',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items)=> {
+              const k = items[0].label; // yyyy-mm-dd
+              const [y,m,dd] = k.split('-').map(Number);
+              const d = new Date(y, m-1, dd);
+              return `${weekdayEs(d)} ${dd.toString().padStart(2,'0')}/${m.toString().padStart(2,'0')}`;
+            },
+            label: (ctx)=> `Prospectos: ${ctx.parsed.y.toLocaleString('es-AR')}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color:'rgba(255,255,255,.06)' },
+          ticks: {
+            callback: (v, i) => {
+              const k = labels[i]; if (!k) return '';
+              const [y,m,d] = k.split('-');
+              return `${d}/${m}`;
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color:'rgba(255,255,255,.06)' },
+          ticks: { precision: 0 }
+        }
+      }
+    }
+  });
+}
