@@ -122,3 +122,144 @@ export const valueLabels = {
     ctx.restore();
   }
 };
+
+let chartLlamTrend;
+
+/** Normaliza texto con acentos quitados y minúsculas */
+function _norm(s){
+  return String(s||'').normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().trim();
+}
+
+/** Heurística simple para “omitida” */
+function isOmittedCall(row){
+  const cl = CONFIG.COLS_LLAM;
+  const v = _norm(row?.[cl.resultado]);
+  // “omitid” cubre omitida/omitido; ajusta si tenés otra etiqueta
+  return v.includes('omitid');
+}
+
+/** Rellena días faltantes entre min y max con 0 */
+function fillDaysRange(counts, minDate, maxDate){
+  const out = {};
+  const d = new Date(minDate);
+  d.setHours(0,0,0,0);
+  const end = new Date(maxDate);
+  end.setHours(0,0,0,0);
+  while (d <= end){
+    const k = d.toISOString().slice(0,10);
+    out[k] = counts[k] || 0;
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+export function renderLlamadosTrend(){
+  const { llam } = getFiltered();            // respeta el rango global
+  const cl = CONFIG.COLS_LLAM;
+
+  if (!llam || !llam.length){
+    // si no hay datos, destruye chart previo y sale
+    if (chartLlamTrend) { chartLlamTrend.destroy(); chartLlamTrend = null; }
+    return;
+  }
+
+  // Agrupa por día yyyy-mm-dd
+  const succ = {};   // éxitos por día
+  const omit = {};   // omitidos por día
+
+  let minD = null, maxD = null;
+
+  for (const r of llam){
+    const d = parseDateFlex(r[cl.fecha], 'dmy');
+    if (!d || isNaN(d)) continue;
+    d.setHours(0,0,0,0);
+    if (!minD || d < minD) minD = new Date(d);
+    if (!maxD || d > maxD) maxD = new Date(d);
+
+    const key = d.toISOString().slice(0,10);
+    if (isSuccessCall(r)) {
+      succ[key] = (succ[key]||0) + 1;
+    } else if (isOmittedCall(r)) {
+      omit[key] = (omit[key]||0) + 1;
+    } else {
+      // otros estados: no se cuentan (solo pediste éxitos vs omitidos)
+    }
+  }
+
+  if (!minD || !maxD){
+    if (chartLlamTrend) { chartLlamTrend.destroy(); chartLlamTrend = null; }
+    return;
+  }
+
+  // Rellenar días sin registros con 0 para tener líneas continuas
+  const succFull = fillDaysRange(succ, minD, maxD);
+  const omitFull = fillDaysRange(omit, minD, maxD);
+
+  const keys = Object.keys(succFull).sort();  // yyyy-mm-dd
+  const labels = keys.map(k => {
+    const [y,m,d] = k.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit' });
+  });
+
+  const dataSucc = keys.map(k => succFull[k]);
+  const dataOmit = keys.map(k => omitFull[k]);
+
+  // Render — línea verde (éxitos) y roja (omitidos)
+  const el = document.getElementById('chartLlamTrend');
+  if (!el) return;
+  const ctx = el.getContext('2d');
+
+  if (chartLlamTrend) chartLlamTrend.destroy();
+
+  chartLlamTrend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Éxitos',
+          data: dataSucc,
+          borderColor: '#5ad77c',
+          backgroundColor: 'rgba(90,215,124,0.15)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 0
+        },
+        {
+          label: 'Omitidos',
+          data: dataOmit,
+          borderColor: '#ff6b6b',
+          backgroundColor: 'rgba(255,107,107,0.15)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: true },
+        tooltip: {
+          callbacks: {
+            label: (ctx)=> `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-AR')}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color:'rgba(255,255,255,.06)' } },
+        y: {
+          beginAtZero: true,
+          grid: { color:'rgba(255,255,255,.06)' },
+          ticks: { precision: 0, stepSize: 1 }
+        }
+      }
+    }
+  });
+}
+
