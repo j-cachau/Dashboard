@@ -81,37 +81,104 @@ export function renderCharts(){
   });
 }
 
-export function renderDuracionChart(mode='avg'){
+export function renderDuracionChart(mode = 'avg'){
   const cl = CONFIG.COLS_LLAM;
-  const agg = new Map();
-  for (const r of LLAM.filter(isSuccessCall)){
-    const oper = r[cl.operador] || 'Sin operador';
-    const sec  = parseDurationToSeconds(r[cl.Duracion]) || parseDurationToSeconds(r['Duración de la llamada']) || parseDurationToSeconds(r['Duración']);
-    if (!sec) continue;
-    let a = agg.get(oper); if(!a) agg.set(oper, a={sumSec:0,count:0});
-    a.sumSec += sec; a.count += 1;
-  }
-  const entries = Array.from(agg.entries()).map(([k,v])=> [k, mode==='avg' ? v.sumSec/Math.max(1,v.count) : v.sumSec]).sort((a,b)=> b[1]-a[1]);
-  const labels = entries.map(e=>e[0]); const data = entries.map(e=>e[1]);
 
-  const el = document.getElementById('chartDuracion'); if(!el) return;
-  const H = (n)=> !n?160: (n<=6?220: Math.min(320, 22*n+80)); //el.style.height=H(labels.length)+'px';
-  const ctx = el.getContext('2d'); if(chartDuracion) chartDuracion.destroy();
+  // Agrupa segundos por operador SOLO para llamadas entrantes y con resultado éxito/omitido
+  const agg = new Map();
+  for (const r of (LLAM || [])) {
+    // Tipo: solo Entrante
+    if (!isInbound(r[cl.tipo])) continue;
+
+    // Resultado: solo éxito u omitido
+    const cls = classifyCall(r[cl.resultado]);
+    if (cls !== 'success' && cls !== 'omitted') continue;
+
+    const oper = r[cl.operador] || 'Sin operador';
+    const sec =
+      parseDurationToSeconds(r[cl.Duracion]) ||
+      parseDurationToSeconds(r['Duración de la llamada']) ||
+      parseDurationToSeconds(r['Duración']);
+    if (!sec) continue;
+
+    let a = agg.get(oper);
+    if (!a) agg.set(oper, (a = { sumSec: 0, count: 0 }));
+    a.sumSec += sec;
+    a.count  += 1;
+  }
+
+  // Si no hay datos válidos, limpiar y salir
+  if (agg.size === 0) {
+    if (chartDuracion) { chartDuracion.destroy(); chartDuracion = null; }
+    const elEmpty = document.getElementById('chartDuracion');
+    if (elEmpty) elEmpty.getContext('2d').clearRect(0, 0, elEmpty.width, elEmpty.height);
+    return;
+  }
+
+  // Armar dataset (promedio o suma) ordenado desc
+  const entries = Array.from(agg.entries())
+    .map(([k,v]) => [k, mode === 'avg' ? v.sumSec / Math.max(1, v.count) : v.sumSec])
+    .sort((a,b) => b[1] - a[1]);
+
+  const labels = entries.map(e => e[0]);
+  const data   = entries.map(e => e[1]);
+
+  const el = document.getElementById('chartDuracion');
+  if (!el) return;
+
+  // Altura dinámica opcional (si querés reactivarla, descomentá la línea)
+  // const H = (n) => !n ? 160 : (n <= 6 ? 220 : Math.min(320, 22 * n + 80));
+  // el.style.height = H(labels.length) + 'px';
+
+  const ctx = el.getContext('2d');
+  if (chartDuracion) chartDuracion.destroy();
 
   chartDuracion = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{ label: mode==='avg' ? 'Promedio por llamada' : 'Suma total', data, barThickness:18, maxBarThickness:22, borderRadius:6, borderSkipped:false, categoryPercentage:0.6, barPercentage:0.9, valueLabelFormatter:(v)=> formatSecondsBrief(v) }]},
-    options:{
-      indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:false, layout:{ padding:{ right:28 } },
-      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:(ctx)=> `${ctx.dataset.label}: ${formatSecondsBrief(ctx.parsed.x)}` }}},
-      scales:{
-        x:{ beginAtZero:true, grid:{ color:'rgba(255,255,255,.06)' }, ticks:{ callback:(v)=> formatSecondsBrief(v), precision:0 } },
-        y:{ ticks:{ autoSkip:false, font:{ size:12 }, callback:(v,i)=> shortenLabel(labels[i],36) }, grid:{ display:false } }
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: mode === 'avg' ? 'Promedio por llamada' : 'Suma total',
+        data,
+        barThickness: 18,
+        maxBarThickness: 22,
+        borderRadius: 6,
+        borderSkipped: false,
+        categoryPercentage: 0.6,
+        barPercentage: 0.9,
+        valueLabelFormatter: (v) => formatSecondsBrief(v)
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      layout: { padding: { right: 28 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${formatSecondsBrief(ctx.parsed.x)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,.06)' },
+          ticks: { callback: (v) => formatSecondsBrief(v), precision: 0 }
+        },
+        y: {
+          ticks: { autoSkip: false, font: { size: 12 }, callback: (v, i) => shortenLabel(labels[i], 36) },
+          grid: { display: false }
+        }
       }
     },
-    plugins:[valueLabels]
+    plugins: [valueLabels]
   });
 }
+
 
 // plugin & helpers for charts moved to charts_utils.js
 export const valueLabels = {
