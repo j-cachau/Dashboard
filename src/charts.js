@@ -31,9 +31,9 @@ export function renderCharts(){
   const elC = document.getElementById('chartCompanias');
   if(!elE || !elO || !elC) return;
 
-  elE.style.height = H(labelsE.length)+'px';
-  elO.style.height = H(labelsO.length)+'px';
-  elC.style.height = H(labelsC.length)+'px';
+  //elE.style.height = H(labelsE.length)+'px';
+  //elO.style.height = H(labelsO.length)+'px';
+  //elC.style.height = H(labelsC.length)+'px';
 
   const ctxE = elE.getContext('2d');
   const ctxO = elO.getContext('2d');
@@ -92,7 +92,7 @@ export function renderDuracionChart(mode='avg'){
   const labels = entries.map(e=>e[0]); const data = entries.map(e=>e[1]);
 
   const el = document.getElementById('chartDuracion'); if(!el) return;
-  const H = (n)=> !n?160: (n<=6?220: Math.min(320, 22*n+80)); el.style.height=H(labels.length)+'px';
+  const H = (n)=> !n?160: (n<=6?220: Math.min(320, 22*n+80)); //el.style.height=H(labels.length)+'px';
   const ctx = el.getContext('2d'); if(chartDuracion) chartDuracion.destroy();
 
   chartDuracion = new Chart(ctx, {
