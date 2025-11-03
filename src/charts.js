@@ -90,9 +90,10 @@ export function renderDuracionChart(mode = 'avg'){
     // Tipo: solo Entrante
     if (!isInbound(r[cl.tipo])) continue;
 
-    // Resultado: solo éxito u omitido
+    // Resultado: solo éxito
     const cls = classifyCall(r[cl.resultado]);
-    if (cls !== 'success' && cls !== 'omitted') continue;
+    if (cls !== 'success') continue;
+
 
     const oper = r[cl.operador] || 'Sin operador';
     const sec =
