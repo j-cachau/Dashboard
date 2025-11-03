@@ -1,6 +1,6 @@
 // src/kpis.js
 import { CONFIG } from './config.js';
-import { RAW_PROS, RAW_LLAM, PROS, LLAM, getFiltered } from './state.js';
+import { RAW_PROS, RAW_LLAM, PROS, LLAM } from './state.js';
 import { $, fmt, parseDateFlex, classifyCall, isInbound } from './utils.js';
 
 export function renderKPIs(){
