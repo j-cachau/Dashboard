@@ -1,4 +1,15 @@
-// src/main.js
+// src/main.js  (ESM)
+import './config.js';
+import './state.js';
+import './utils.js';
+import './filters.js';
+import './kpis.js';
+import './charts.js';
+import './tables.js';
+import './data.js';
+import './router.js';
+
+
 async function init(){
   ensureConfig();
   $('#dataStatus').textContent = 'Cargando…';
