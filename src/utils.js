@@ -74,3 +74,26 @@ export function downloadFile(name, data, mime='text/plain'){
   const a = Object.assign(document.createElement('a'), {href:url, download:name});
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
+
+// Clasifica el resultado de la llamada
+export function classifyCall(raw) {
+  const v = String(raw || '')
+    .normalize('NFD').replace(/\p{Diacritic}/gu,'')
+    .toLowerCase().trim();
+
+  if (!v) return 'unknown';
+  if (v.includes('exito'))    return 'success';   // "La llamada tuvo/fue éxito"
+  if (v.includes('omitid'))   return 'omitted';   // "La llamada fue omitida"
+  if (v.includes('declinad')) return 'declined';  // "Declinado"
+  if (v.includes('indefinid'))return 'undefined'; // "Indefinido"
+  return 'unknown';
+}
+
+// Solo llamadas entrantes
+export function isInbound(rawType) {
+  const v = String(rawType || '')
+    .normalize('NFD').replace(/\p{Diacritic}/gu,'')
+    .toLowerCase().trim();
+  return v === 'entrante' || v === 'inbound';
+}
+
