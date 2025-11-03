@@ -127,3 +127,68 @@ export function downloadFile(filename, content, mime = 'text/csv;charset=utf-8')
   }, 0);
 }
 
+// ===== CSV helpers =====
+
+// Escapa y envuelve la celda si hace falta
+function csvSafe(v, sep = ',') {
+  if (v == null) return '';
+  // a texto
+  let s = (v instanceof Date) ? v.toISOString() : String(v);
+  // duplicar comillas y envolver si hay caracteres conflictivos
+  const needsQuotes = /["\n\r]/.test(s) || s.includes(sep);
+  if (s.includes('"')) s = s.replace(/"/g, '""');
+  return needsQuotes ? `"${s}"` : s;
+}
+
+/**
+ * Convierte un array de objetos a CSV.
+ * @param {Array<Object>} rows - Datos
+ * @param {Array<{key:string,label:string}>|string[]} columns - Definición de columnas
+ *        Si pasás string[], se usa el mismo valor como label.
+ *        Si omitís columns, se toma Object.keys(rows[0]).
+ * @param {string} sep - Separador, por defecto ','
+ * @returns {string} CSV con CRLF (amigable con Excel)
+ */
+export function toCSV(rows = [], columns, sep = ',') {
+  if (!rows.length) return '';
+  let cols;
+
+  if (!columns) {
+    const keys = Object.keys(rows[0]);
+    cols = keys.map(k => ({ key: k, label: k }));
+  } else if (typeof columns[0] === 'string') {
+    cols = columns.map(k => ({ key: k, label: k }));
+  } else {
+    cols = columns; // [{key,label}]
+  }
+
+  const header = cols.map(c => csvSafe(c.label, sep)).join(sep);
+  const body = rows.map(r =>
+    cols.map(c => csvSafe(r[c.key], sep)).join(sep)
+  ).join('\r\n');
+
+  return header + '\r\n' + body;
+}
+
+/**
+ * Descarga un archivo (CSV, etc.)
+ */
+export function downloadFile(filename, content, mime = 'text/csv;charset=utf-8') {
+  const blob = new Blob([content], { type: mime });
+
+  if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveOrOpenBlob(blob, filename);
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+}
