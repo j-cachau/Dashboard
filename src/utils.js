@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 // src/utils.js
 const $ = (sel)=> document.querySelector(sel);
 const fmt = (n)=> Number(n||0).toLocaleString('es-AR');
