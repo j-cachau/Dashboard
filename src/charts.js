@@ -498,6 +498,8 @@ function getTelefono(r, cl){
   );
 }
 
+let chartHoraUnique = null;
+
 export function renderLlamadosPorHoraUnique(){
   const { llam } = getFiltered();        // respeta el rango global
   const cl = CONFIG.COLS_LLAM || {};     // por si querés usar mapeos existentes
