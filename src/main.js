@@ -4,7 +4,7 @@ import { RANGE, setFiltered } from './state.js';
 import { ensureConfig, loadData, updateLastModifiedKPI } from './data.js';
 import { getFiltered } from './filters.js';
 import { renderKPIs } from './kpis.js';
-import { renderCharts, renderDuracionChart,renderLlamadosTrend,renderProspectosPorDia,renderLlamadosPorHoraUnique } from './charts.js';
+import { renderCharts, renderDuracionChart,renderLlamadosTrend,renderProspectosPorDia,renderLlamadosPorHoraUnique, syncAvgTableHeight } from './charts.js';
 import { renderTables,renderTablaPromediosHora } from './tables.js';
 import { $ } from './utils.js';
 import { initRouter } from './router.js';
@@ -20,10 +20,15 @@ function rerenderAll(){
   renderTables();
   renderLlamadosTrend();
   renderLlamadosPorHoraUnique();
+  syncAvgTableHeight();
   renderDuracionChart($('#durMode')?.value || 'avg');
   renderProspectosPorDia();
   renderTablaPromediosHora();
 }
+
+window.addEventListener('resize', () => {
+  requestAnimationFrame(syncAvgTableHeight);
+});
 
 async function init(){
   ensureConfig();
