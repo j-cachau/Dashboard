@@ -155,6 +155,78 @@ h1{font-size:18px;margin:0}
   }
 }
 
+/* toolbar con dos títulos alineados */
+.toolbar.dual {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toolbar.dual .title-left {
+  margin: 0;
+}
+.toolbar.dual .title-right {
+  margin: 0 0 0 auto;   /* se va a la derecha */
+  opacity: .9;
+  font-weight: 600;
+}
+
+/* fila con gráfico + tabla */
+.row-plot-table {
+  display: grid;
+  grid-template-columns: 1fr 320px; /* 75% / 25% aprox. (ajustá 320px si querés) */
+  gap: 16px;
+  align-items: stretch; /* ambas columnas comparten la altura */
+}
+
+/* el canvas gobierna la altura de la tarjeta */
+.col.plot {
+  min-height: 340px;          /* altura mínima cómoda */
+}
+.col.plot .chart-box,
+.col.plot canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* columna derecha: tabla con scroll propio */
+.col.table-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+}
+
+/* el contenedor scrolleable de la tabla */
+.table-scroll {
+  overflow-y: auto;
+  /* max-height se setea por JS según la altura real del gráfico */
+  border-radius: 8px;
+}
+
+/* header pegajoso de la tabla */
+.table.sticky-head thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(255,255,255,.06); /* coherente con tu tema */
+  backdrop-filter: blur(2px);
+}
+
+/* compactado suave de filas */
+.table.compact tbody tr td {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* opcional: barra de scroll sutil */
+.table-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.15);
+  border-radius: 6px;
+}
+
 
 /* Opcional: deja los cards sin desbordes visibles */
 .card{ overflow: hidden; }
