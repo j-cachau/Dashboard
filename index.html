@@ -65,14 +65,17 @@
           <h3>Top Etiquetas</h3>
           <div class="chart-box"><canvas id="chartEstados"></canvas></div>
         </div>
+      
         <div class="card">
           <h3>Top Compañías</h3>
           <div class="chart-box"><canvas id="chartCompanias"></canvas></div>
         </div>
+      
         <div class="card">
           <h3>Llamados por Operador</h3>
           <div class="chart-box"><canvas id="chartOperador"></canvas></div>
         </div>
+      
         <div class="card">
           <div class="toolbar">
             <h3 style="margin-right:auto">Tiempo de llamadas</h3>
@@ -83,6 +86,7 @@
           </div>
           <div class="chart-box"><canvas id="chartDuracion"></canvas></div>
         </div>
+      
         <!-- Tendencia de llamados por día (ocupa 2 columnas) -->
         <div class="card span-2">
           <div class="toolbar">
@@ -93,59 +97,62 @@
           </div>
         </div>
       </section>
-    </section>
-
-    <!-- Prospectos por día -->
-    <section class="grid cols-2" style="margin-top:16px">
-      <div class="card">
-        <h3>Top días por prospectos</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Día</th>
-              <th>Semana</th>
-              <th style="text-align:right">Prospectos</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyTopDiasPros"></tbody>
-        </table>
-      </div>
-    
-      <div class="card">
-        <h3>Prospectos por día</h3>
-        <div class="chart-h320">
-          <canvas id="chartProsDia"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="toolbar" style="margin-bottom:8px">
-          <h3 style="margin-right:auto">Llamados por hora — Números únicos</h3>
+      
+      <!-- Prospectos por día -->
+      <section class="grid cols-2" style="margin-top:16px">
+        <div class="card">
+          <h3>Top días por prospectos</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Día</th>
+                <th>Semana</th>
+                <th style="text-align:right">Prospectos</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyTopDiasPros"></tbody>
+          </table>
         </div>
       
-        <!-- fila de 2 columnas: 75% grafico / 25% tabla -->
-        <div class="row-plot-table">
-          <!-- Columna izquierda: gráfico -->
-          <div class="col plot">
-            <canvas id="chartHoraUnique"></canvas>
-          </div>
-      
-          <!-- Columna derecha: tabla -->
-          <div class="col table-side">
-            <h4 class="side-title">Promedio por hora</h4>
-            <table id="tblAvgHora" class="table compact">
-              <thead>
-                <tr>
-                  <th>Hora</th>
-                  <th>Lun–Vie</th>
-                  <th>Sáb–Dom</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+        <div class="card">
+          <h3>Prospectos por día</h3>
+          <div class="chart-h320">
+            <canvas id="chartProsDia"></canvas>
           </div>
         </div>
-      </div>
-    </section>
+      
+        <!-- Llamados por hora — Números únicos (card a lo ancho: 2 columnas) -->
+        <div class="card span-2">
+          <div class="toolbar" style="margin-bottom:8px">
+            <h3 style="margin-right:auto">Llamados por hora — Números únicos</h3>
+          </div>
+      
+          <!-- fila de 2 columnas: 75% gráfico / 25% tabla -->
+          <div class="row-plot-table">
+            <!-- Columna izquierda: gráfico -->
+            <div class="col plot">
+              <div class="chart-box">
+                <canvas id="chartHoraUnique"></canvas>
+              </div>
+            </div>
+      
+            <!-- Columna derecha: tabla -->
+            <div class="col table-side">
+              <h4 class="side-title">Promedio por hora</h4>
+              <table id="tblAvgHora" class="table compact">
+                <thead>
+                  <tr>
+                    <th>Hora</th>
+                    <th>Lun–Vie</th>
+                    <th>Sáb–Dom</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyPromHora"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
 
 
     <!-- PROSPECTOS -->
