@@ -227,6 +227,31 @@ h1{font-size:18px;margin:0}
   border-radius: 6px;
 }
 
+/* === Layout espejo: TABLA (izq) + GRAFICO (der) === */
+.row-table-plot{
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) minmax(420px, 1fr); /* tabla angosta + grafico ancho */
+  gap: 16px;
+  align-items: start;
+}
+
+/* El gráfico no empuja el layout */
+.row-table-plot .plot { min-width: 0; }
+
+/* Alto del gráfico (usá el mismo que venís usando) */
+.row-table-plot .plot canvas{
+  width: 100% !important;
+  height: 320px !important; /* si preferís 300/360, cambialo acá */
+}
+
+/* La tabla scrollea sola (ya tenés .table-scroll, esto es por si lo necesitás específico) */
+#tableScrollPros { overflow: auto; }
+
+/* Responsive: apila cuando la pantalla es angosta */
+@media (max-width: 1100px){
+  .row-table-plot{ grid-template-columns: 1fr; }
+}
+
 
 /* Opcional: deja los cards sin desbordes visibles */
 .card{ overflow: hidden; }
