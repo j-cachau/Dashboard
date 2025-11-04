@@ -592,3 +592,73 @@ export function renderLlamadosPorHoraUnique(){
     }
   });
 }
+
+// === Promedio de llamados por hora (números únicos válidos) ===
+// Entrantes + (éxito u omitida), únicos por hora. Separa Lun–Vie y Sáb–Dom.
+
+function toYMD(d) {
+  return d.toISOString().slice(0,10);
+}
+function isWeekday(d) {
+  const wd = d.getDay(); // 0=dom .. 6=sab
+  return wd >= 1 && wd <= 5;
+}
+function normPhone(s) {
+  if (!s) return '';
+  return String(s).replace(/[^\d+]/g,'').replace(/^(\+?54)?0+/,''); // simple normalizador
+}
+
+// Devuelve promedios por hora: { avgWd: number[24], avgWe: number[24], daysWd, daysWe }
+export function computeAvgUniqueByHour() {
+  const { llam } = getFiltered();
+  const cl = CONFIG.COLS_LLAM;
+
+  // Mapa fecha -> array[24] de Set() de teléfonos únicos por hora
+  const wdByDay = new Map(); // Lunes–Viernes
+  const weByDay = new Map(); // Sábado–Domingo
+
+  for (const r of (llam || [])) {
+    // tipo: solo entrante
+    if (!isInbound(r[cl.tipo])) continue;
+
+    // estado: solo éxito/omitida
+    const stat = classifyCall(r[cl.resultado]);
+    if (stat !== 'success' && stat !== 'omitted') continue;
+
+    const d = parseDateFlex(r[cl.fecha], 'dmy');
+    if (!d || isNaN(d)) continue;
+    const h = d.getHours();
+    const key = toYMD(d);
+    const phone = normPhone(r[cl.telefono] || r['Teléfono'] || r['Telefono'] || '');
+
+    if (!phone) continue;
+
+    const bucket = (isWeekday(d) ? wdByDay : weByDay);
+    let arr = bucket.get(key);
+    if (!arr) { arr = Array.from({length:24}, () => new Set()); bucket.set(key, arr); }
+    arr[h].add(phone);
+  }
+
+  // Armar promedios por hora
+  const hours = Array.from({length:24}, (_,h)=>h);
+  const daysWd = wdByDay.size;
+  const daysWe = weByDay.size;
+
+  const sumWd = Array(24).fill(0);
+  const sumWe = Array(24).fill(0);
+
+  for (const arr of wdByDay.values()) {
+    hours.forEach(h => sumWd[h] += arr[h].size);
+  }
+  for (const arr of weByDay.values()) {
+    hours.forEach(h => sumWe[h] += arr[h].size);
+  }
+
+  // Si preferís dividir por TODOS los días calendario del rango (incluyendo días sin datos),
+  // en lugar de daysWd/daysWe, calculá daysWd/daysWe desde el rango global y reemplazá acá.
+  const avgWd = sumWd.map(v => daysWd ? v / daysWd : 0);
+  const avgWe = sumWe.map(v => daysWe ? v / daysWe : 0);
+
+  return { avgWd, avgWe, daysWd, daysWe };
+}
+
