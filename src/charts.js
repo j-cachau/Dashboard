@@ -467,3 +467,128 @@ export function renderProspectosPorDia() {
     }
   });
 }
+
+let chartLlamPorHora = null;
+
+// Helpers locales para robustez con acentos / mayúsculas
+function norm(s){
+  return (s ?? '')
+    .toString()
+    .normalize('NFD').replace(/\p{Diacritic}/gu,'') // saca acentos
+    .toLowerCase().trim();
+}
+function esEntrante(v){
+  const s = norm(v);
+  // “entrante”, “entrada”, etc (por si viene con variantes)
+  return s.includes('entrante') || s.includes('entrada');
+}
+function esStatusValido(v){
+  const s = norm(v);
+  // acepta “La llamada tuvo éxito” y “La llamada fue omitida”
+  return s.includes('exito') || s.includes('omitida');
+}
+
+// Intenta tomar teléfono con prioridad “Teléfono”
+function getTelefono(r, cl){
+  return (
+    r?.['Teléfono'] ??
+    r?.['Telefono'] ??
+    r?.['Phone'] ??
+    (cl?.telefono ? r?.[cl.telefono] : null)
+  );
+}
+
+export function renderLlamadosPorHoraUnique(){
+  const { llam } = getFiltered();        // respeta el rango global
+  const cl = CONFIG.COLS_LLAM || {};     // por si querés usar mapeos existentes
+
+  // Conjuntos de teléfonos únicos por hora (0..23)
+  const uniqWeekday = Array.from({length:24}, ()=> new Set());
+  const uniqWeekend = Array.from({length:24}, ()=> new Set());
+
+  for (const r of (llam || [])){
+    const tel   = getTelefono(r, cl);
+    const tipo  = r?.['tipo de llamado'] ?? (cl?.tipo ? r?.[cl.tipo] : null);
+    const est   = r?.['Estatus'] ?? (cl?.resultado ? r?.[cl.resultado] : null);
+
+    if (!tel) continue;                      // sin número no cuenta
+    if (!esEntrante(tipo)) continue;         // solo entrantes
+    if (!esStatusValido(est)) continue;      // solo éxito u omitida
+
+    // Fecha/hora del registro
+    const f = r?.[cl?.fecha] ?? r?.['Fecha'] ?? r?.['fecha'];
+    const d = parseDateFlex(f, 'dmy');       // igual que el resto del dashboard
+    if (!d || isNaN(d)) continue;
+
+    const hour = d.getHours();               // 0..23
+    const dow  = d.getDay();                 // 0=Dom .. 6=Sáb
+
+    if (dow === 0 || dow === 6){
+      uniqWeekend[hour].add(tel);
+    } else {
+      uniqWeekday[hour].add(tel);
+    }
+  }
+
+  // Pasamos a cantidades por hora
+  const dataWeekday = uniqWeekday.map(s => s.size);
+  const dataWeekend = uniqWeekend.map(s => s.size);
+  const labels = Array.from({length:24}, (_,h)=> String(h).padStart(2,'0') + ':00');
+
+  const el = document.getElementById('chartLlamPorHora');
+  if (!el) return;
+
+  if (chartLlamPorHora) { chartLlamPorHora.destroy(); chartLlamPorHora = null; }
+  const ctx = el.getContext('2d');
+
+  chartLlamPorHora = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Lun–Vie (números únicos)',
+          data: dataWeekday,
+          borderColor: '#4da3ff',
+          backgroundColor: 'rgba(77,163,255,0.15)',
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true
+        },
+        {
+          label: 'Sáb–Dom (números únicos)',
+          data: dataWeekend,
+          borderColor: '#ffb86b',
+          backgroundColor: 'rgba(255,184,107,0.15)',
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: true },
+        tooltip: {
+          callbacks: {
+            label: (ctx)=> `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-AR')}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color:'rgba(255,255,255,.06)' } },
+        y: {
+          beginAtZero: true,
+          grid: { color:'rgba(255,255,255,.06)' },
+          ticks: { precision: 0, stepSize: 1 }
+        }
+      }
+    }
+  });
+}
