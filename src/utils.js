@@ -2,6 +2,14 @@
 export const $ = (sel)=> document.querySelector(sel);
 export const fmt = (n)=> Number(n||0).toLocaleString('es-AR');
 
+export function syncHeightPair(canvasId, scrollId, min = 200) {
+  const canvas = document.getElementById(canvasId);
+  const box    = document.getElementById(scrollId);
+  if (!canvas || !box) return;
+  const h = canvas.getBoundingClientRect().height || 0;
+  box.style.maxHeight = Math.max(min, Math.round(h)) + 'px';
+}
+
 export function parseDurationToSeconds(s){
   if (!s) return 0;
   s = String(s).toLowerCase();
