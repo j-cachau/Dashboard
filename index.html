@@ -117,10 +117,30 @@
           <canvas id="chartProsDia"></canvas>
         </div>
       </div>
-      <div class="card" style="grid-column: span 2;">
+      <div class="card">
         <h3>Llamados por hora — Números únicos</h3>
-        <div class="chart-h320">
-          <canvas id="chartLlamPorHora"></canvas>
+      
+        <div class="split-2-1">
+          <!-- Gráfico (izquierda) -->
+          <div class="pane plot">
+            <canvas id="chartHoraUnique"></canvas>
+          </div>
+      
+          <!-- Tabla (derecha) -->
+          <div class="pane side">
+            <h4 class="side-title">Promedio por hora</h4>
+            <table id="tblAvgHora" class="table compact">
+              <caption style="display:none"></caption>
+              <thead>
+                <tr>
+                  <th>Hora</th>
+                  <th>Lun–Vie</th>
+                  <th>Sáb–Dom</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
