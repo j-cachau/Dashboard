@@ -5,7 +5,6 @@ import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurat
 import { getFiltered } from './filters.js';
 import { parseDateFlex, classifyCall, isInbound,weekdayEs } from './utils.js';
 
-
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
 
 export function renderCharts(){
@@ -80,6 +79,17 @@ export function renderCharts(){
     plugins: [valueLabels]
   });
 }
+
+// Ajusta la altura scrolleable de la tabla a la del gráfico
+export function syncAvgTableHeight() {
+  const plotCanvas = document.getElementById('chartHoraUnique');
+  const scrollBox  = document.getElementById('tableScroll');
+  if (!plotCanvas || !scrollBox) return;
+
+  const h = plotCanvas.getBoundingClientRect().height;
+  scrollBox.style.maxHeight = Math.max(200, Math.round(h)) + 'px';
+}
+
 
 export function renderDuracionChart(mode = 'avg'){
   const cl = CONFIG.COLS_LLAM;
@@ -593,6 +603,7 @@ export function renderLlamadosPorHoraUnique(){
       }
     }
   });
+  requestAnimationFrame(syncAvgTableHeight);
 }
 
 // === Promedio de llamados por hora (números únicos válidos) ===
@@ -663,4 +674,3 @@ export function computeAvgUniqueByHour() {
 
   return { avgWd, avgWe, daysWd, daysWe };
 }
-
