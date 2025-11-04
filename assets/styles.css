@@ -58,6 +58,54 @@ h1{font-size:18px;margin:0}
 
 /* Si en algún momento pusimos un reset como este, anularlo o dejarlo así: */
 /* canvas { height: auto; }   <-- Evitarlo para charts */
+/* Contenedor dividido: 2/3 gráfico – 1/3 tabla */
+.split-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;               /* respeta el mismo gap de tus grids */
+}
+
+/* Pane genérico dentro de la card */
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+/* El gráfico crece a todo lo disponible */
+.pane.plot canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Lado derecho: tabla */
+.pane.side { overflow: auto; }
+.side-title { margin: 0 0 8px 0; font-size: 0.95rem; opacity: .85; }
+
+/* Tabla compacta a la derecha */
+.table.compact {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table.compact thead th {
+  font-weight: 600;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.table.compact tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px dashed rgba(255,255,255,.06);
+}
+.table.compact td.num { text-align: right; }
+
+/* Responsive: apilar cuando sea angosto */
+@media (max-width: 1100px) {
+  .split-2-1 {
+    grid-template-columns: 1fr;
+  }
+  .pane { min-height: 260px; }
+}
 
 
 /* Opcional: deja los cards sin desbordes visibles */
