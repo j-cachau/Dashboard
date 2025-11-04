@@ -100,24 +100,33 @@
       
       <!-- Prospectos por día -->
       <section class="grid cols-2" style="margin-top:16px">
-        <div class="card">
-          <h3>Top días por prospectos</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Día</th>
-                <th>Semana</th>
-                <th style="text-align:right">Prospectos</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyTopDiasPros"></tbody>
-          </table>
-        </div>
-      
-        <div class="card">
-          <h3>Prospectos por día</h3>
-          <div class="chart-h320">
-            <canvas id="chartProsDia"></canvas>
+        <!-- Card combinada: Top días (izq) + Prospects por día (der) -->
+        <div class="card span-2">
+          <div class="row-table-plot">
+            
+            <!-- Columna izquierda: tabla (compacta, con scroll si hace falta) -->
+            <div class="col table-side">
+              <h3 class="side-title">Top días por prospectos</h3>
+              <div id="tableScrollPros" class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Día</th>
+                      <th>Semana</th>
+                      <th style="text-align:right">Prospectos</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyTopDiasPros"></tbody>
+                </table>
+              </div>
+            </div>
+        
+            <!-- Columna derecha: gráfico (más ancho) -->
+            <div class="col plot">
+              <h3 class="side-title">Prospectos por día</h3>
+              <canvas id="chartProsDia"></canvas>
+            </div>
+        
           </div>
         </div>
       
