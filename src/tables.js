@@ -2,6 +2,7 @@
 import { CONFIG } from './config.js';
 import { PROS, LLAM } from './state.js';
 import { $, toCSV, downloadFile, parseDateFlex } from './utils.js';
+import { computeAvgUniqueByHour } from './charts.js';
 
 export function renderTables(){
   const c = CONFIG.COLS_PROS, cl = CONFIG.COLS_LLAM;
@@ -27,4 +28,33 @@ export function renderTables(){
   const pf = $('#prosFooter'), lf = $('#llamFooter');
   if (pf){ pf.innerHTML = '<button id="expPros" class="pill">Exportar CSV</button>'; $('#expPros').onclick = ()=> downloadFile('prospectos.csv', toCSV(prosOrd), 'text/csv'); }
   if (lf){ lf.innerHTML = '<button id="expLlam" class="pill">Exportar CSV</button>'; $('#expLlam').onclick = ()=> downloadFile('llamados.csv', toCSV(llamOrd), 'text/csv'); }
+}
+
+export function renderTablaPromediosHora() {
+  const { avgWd, avgWe, daysWd, daysWe } = computeAvgUniqueByHour();
+  const $tbl = document.querySelector('#tblAvgHora');
+  if (!$tbl) return;
+  const $tbody = $tbl.querySelector('tbody');
+
+  const fmtHour = h => `${String(h).padStart(2,'0')}:00`;
+  const fmtNum  = v => (Math.round(v * 10) / 10).toLocaleString('es-AR');
+
+  // (opcional) mostrar denominadores en caption
+  const $cap = $tbl.querySelector('caption');
+  if ($cap) {
+    $cap.style.display = 'block';
+    $cap.textContent = `Promedio por hora (números únicos válidos) — Lun–Vie / Sáb–Dom | días: ${daysWd} / ${daysWe}`;
+  }
+
+  const rows = [];
+  for (let h = 0; h < 24; h++) {
+    rows.push(`
+      <tr>
+        <td>${fmtHour(h)}</td>
+        <td class="num">${fmtNum(avgWd[h])}</td>
+        <td class="num">${fmtNum(avgWe[h])}</td>
+      </tr>
+    `);
+  }
+  $tbody.innerHTML = rows.join('');
 }
