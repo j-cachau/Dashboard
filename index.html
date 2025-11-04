@@ -122,33 +122,34 @@
         </div>
       
         <!-- Llamados por hora — Números únicos (card a lo ancho: 2 columnas) -->
-        <div class="card span-2">
-          <div class="toolbar" style="margin-bottom:8px">
-            <h3 style="margin-right:auto">Llamados por hora — Números únicos</h3>
+        <div class="card">
+          <!-- barra superior compartida para alinear títulos -->
+          <div class="toolbar dual">
+            <h3 class="title-left">Llamados por hora — Números únicos</h3>
+            <h3 class="title-right">Promedio por hora</h3>
           </div>
-      
-          <!-- fila de 2 columnas: 75% gráfico / 25% tabla -->
+        
+          <!-- fila de 2 columnas: gráfico a la izquierda / tabla a la derecha -->
           <div class="row-plot-table">
             <!-- Columna izquierda: gráfico -->
             <div class="col plot">
-              <div class="chart-box chart-h320">
-                <canvas id="chartHoraUnique"></canvas>
-              </div>
+              <canvas id="chartHoraUnique"></canvas>
             </div>
-      
-            <!-- Columna derecha: tabla -->
+        
+            <!-- Columna derecha: tabla con scroll propio -->
             <div class="col table-side">
-              <h4 class="side-title">Promedio por hora</h4>
-              <table id="tblAvgHora" class="table compact">
-                <thead>
-                  <tr>
-                    <th>Hora</th>
-                    <th>Lun–Vie</th>
-                    <th>Sáb–Dom</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyPromHora"></tbody>
-              </table>
+              <div id="tableScroll" class="table-scroll">
+                <table id="tblAvgHora" class="table compact sticky-head">
+                  <thead>
+                    <tr>
+                      <th>Hora</th>
+                      <th>Lun–Vie</th>
+                      <th>Sáb–Dom</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
