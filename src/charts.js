@@ -1,9 +1,9 @@
 // src/charts.js
 import { CONFIG } from './config.js';
 import { PROS, LLAM } from './state.js';
-import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurationToSeconds, syncHeightPair } from './charts_utils.js';
+import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurationToSeconds, } from './charts_utils.js';
 import { getFiltered } from './filters.js';
-import { parseDateFlex, classifyCall, isInbound,weekdayEs } from './utils.js';
+import { parseDateFlex, classifyCall, isInbound,weekdayEs, syncHeightPair } from './utils.js';
 
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
 
