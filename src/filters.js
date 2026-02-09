@@ -28,7 +28,8 @@ export function inRange(d){
 
 export function getFiltered(){
   const c  = CONFIG.COLS_PROS, cl = CONFIG.COLS_LLAM;
-  const pros = RAW_PROS.filter(p => inRange(parseDateFlex(p[c.fechaAlta], 'mdy')));
+  // En Sheets viene DD/MM/AAAA
+  const pros = RAW_PROS.filter(p => inRange(parseDateFlex(p[c.fechaAlta], 'dmy')));
   const llam = RAW_LLAM.filter(l => inRange(parseDateFlex(l[cl.fecha], 'dmy')));
   return { pros, llam };
 }

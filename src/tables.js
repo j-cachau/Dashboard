@@ -10,7 +10,7 @@ export function renderTables(){
   const tbodyL = $('#tbodyLlam');
   if (!tbodyP || !tbodyL) return;
 
-  const prosOrd = [...PROS].sort((a,b)=>(parseDateFlex(b[c.fechaAlta],'mdy')||0)-(parseDateFlex(a[c.fechaAlta],'mdy')||0));
+  const prosOrd = [...PROS].sort((a,b)=>(parseDateFlex(b[c.fechaAlta],'dmy')||0)-(parseDateFlex(a[c.fechaAlta],'dmy')||0));
   const llamOrd = [...LLAM].sort((a,b)=>(parseDateFlex(b[cl.fecha],'dmy')||0)-(parseDateFlex(a[cl.fecha],'dmy')||0));
 
   const rowP = (p)=> `<tr><td>${p[c.fechaAlta]||''}</td><td>${p[c.compania]||''}</td><td>${p[c.contacto]||''}</td><td>${p[c.estado]||''}</td><td>${p[c.origen]||''}</td></tr>`;

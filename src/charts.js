@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { PROS, LLAM } from './state.js';
 import { groupCount, isSuccessCall, shortenLabel, formatSecondsBrief, parseDurationToSeconds, } from './charts_utils.js';
 import { getFiltered } from './filters.js';
-import { parseDateFlex, classifyCall, isInbound,weekdayEs, syncHeightPair } from './utils.js';
+import { parseDateFlex, classifyCall, isInbound, isSuccessStatus, weekdayEs, syncHeightPair } from './utils.js';
 
 let chartEstados, chartOperador, chartCompanias, chartDuracion;
 
@@ -15,16 +15,13 @@ export function renderCharts(){
   const labelsE  = entriesE.map(([k]) => k);
   const dataE    = entriesE.map(([,v]) => v);
 
-  // NUEVO: solo "saliente" + "éxito"
+  // Llamados por operador: SOLO
+  // - Tipo de la llamada = Entrante
+  // - Estatus = "La llamada tuvo éxito" (tolerante a acentos)
   const llamOK = (LLAM || []).filter(r => {
     const tipoRaw = r[cl.tipo] ?? r['Tipo de la llamada'] ?? '';
-    const resRaw  = r[cl.resultado] ?? r['Estatus'] ?? '';
-  
-    // normalizo 'saliente'
-    const tipo = String(tipoRaw).normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase();
-    const esSaliente = tipo.includes('entrante');
-  
-    return esSaliente && classifyCall(resRaw) === 'success';
+    const estRaw  = r[cl.resultado] ?? r['Estatus'] ?? '';
+    return isInbound(tipoRaw) && isSuccessStatus(estRaw);
   });
   
   const porOper = groupCount(llamOK, l => l[cl.operador] || 'Sin operador');
@@ -382,7 +379,7 @@ export function renderProspectosPorDia() {
   let minD=null, maxD=null;
 
   for (const r of (pros || [])) {
-    const d = parseDateFlex(r[c.fechaAlta], 'mdy'); // tu “Creado” es mm/dd/yyyy
+    const d = parseDateFlex(r[c.fechaAlta], 'dmy');
     if (!d || isNaN(d)) continue;
     d.setHours(0,0,0,0);
     const key = d.toISOString().slice(0,10);
@@ -402,7 +399,10 @@ export function renderProspectosPorDia() {
   const tb = document.getElementById('tbodyTopDiasPros');
   if (tb) {
     tb.innerHTML = top.map(({date,count})=>{
-      const f = date.toISOString().slice(0,10);
+      const dd = String(date.getDate()).padStart(2,'0');
+      const mm = String(date.getMonth()+1).padStart(2,'0');
+      const yy = date.getFullYear();
+      const f = `${dd}/${mm}/${yy}`;
       const w = weekdayEs(date);
       return `<tr>
         <td>${f}</td>

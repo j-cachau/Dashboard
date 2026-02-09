@@ -9,7 +9,7 @@ export function renderKPIs(){
   // Prospectos (igual que antes)
   const totalProsHistorico = RAW_PROS.length;
   const nuevos30 = RAW_PROS.filter(p=>{
-    const d = parseDateFlex(p[c.fechaAlta], 'mdy');
+    const d = parseDateFlex(p[c.fechaAlta], 'dmy');
     if (!d) return false;
     const ago = new Date(); ago.setDate(ago.getDate()-30); ago.setHours(0,0,0,0);
     return d >= ago;
@@ -37,7 +37,7 @@ export function renderKPIs(){
 export function computeLastDataDate(){
   const c  = CONFIG.COLS_PROS;
   const cl = CONFIG.COLS_LLAM;
-  const a1 = RAW_PROS.map(p=> parseDateFlex(p[c.fechaAlta], 'mdy')).filter(Boolean);
+  const a1 = RAW_PROS.map(p=> parseDateFlex(p[c.fechaAlta], 'dmy')).filter(Boolean);
   const a2 = RAW_LLAM.map(l=> parseDateFlex(l[cl.fecha], 'dmy')).filter(Boolean);
   if (!a1.length && !a2.length) return null;
   return a1.concat(a2).sort((a,b)=> b-a)[0];

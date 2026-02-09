@@ -40,7 +40,9 @@ export function formatSecondsBrief(total){
   return h ? `${h}:${two(m)}:${two(s)}` : `${m}:${two(s)}`;
 }
 
-export function parseDateFlex(v, prefer='mdy'){
+// Nota: en AR la mayoría de las planillas vienen como DD/MM/AAAA.
+// Dejamos 'dmy' como default para evitar interpretaciones MM/DD ambiguas.
+export function parseDateFlex(v, prefer='dmy'){
   if (!v) return null;
   const s = String(v).trim();
   let m = s.match(/^(\d{4})[/-](\d{2})[/-](\d{2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
